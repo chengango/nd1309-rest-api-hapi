@@ -26,7 +26,7 @@ class BlockController {
             method: 'GET',
             path: '/api/block/{index}',
             handler: (request, h) => {
-               
+                return  this.blocks[request.params.index];
             }
         });
     }
@@ -38,8 +38,20 @@ class BlockController {
         this.server.route({
             method: 'POST',
             path: '/api/block',
+            config: {
+                payload: {
+                  output: 'data',
+                  parse: true,  // parse to json, default is ture
+                  allow: 'application/json' // only accept JSON payloads
+                }
+              },
             handler: (request, h) => {
-                
+                //console.log("11: " + JSON.stringify(request));
+                let blockAux = new BlockClass.Block(request.payload.body);
+                blockAux.height = this.blocks[this.blocks.length];
+                blockAux.hash = SHA256(JSON.stringify(blockAux)).toString();
+                this.blocks.push(blockAux);
+                return "you post a block ,current blockchain is : " + JSON.stringify(this.blocks);
             }
         });
     }
